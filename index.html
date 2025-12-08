@@ -3,100 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شكراً محمد إيهاب</title>
+    <title>شكراً محمد إيهاب - Future Tech</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #00050a; /* لون داكن عميق */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* حاوية الخلفية المتحركة */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* حاوية النص فوق الخلفية */
+        .content {
+            position: relative;
+            z-index: 2;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #050505;
-            overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            pointer-events: none; /* للسماح بالتفاعل مع الخلفية */
         }
 
-        /* حاوية النص */
-        .neon-wrapper {
-            text-align: center;
-        }
-
-        /* النص الأساسي */
         .neon-text {
             font-size: 5rem;
             font-weight: bold;
             color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            position: relative;
-            cursor: default;
-            
-            /* تأثير التوهج الأساسي */
+            text-align: center;
             text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px #ff00de,
-                0 0 40px #ff00de,
-                0 0 80px #ff00de,
-                0 0 90px #ff00de,
-                0 0 100px #ff00de;
-            
-            /* الرسوم المتحركة */
-            animation: pulsate 1.5s infinite alternate;
+                0 0 5px #00f2ff,
+                0 0 10px #00f2ff,
+                0 0 20px #00f2ff,
+                0 0 40px #006aff,
+                0 0 80px #006aff;
+            animation: glow-pulse 2s infinite alternate;
         }
 
-        /* حركة النبض والتوهج */
-        @keyframes pulsate {
-            100% {
-                text-shadow:
-                    0 0 4px #fff,
-                    0 0 11px #fff,
-                    0 0 19px #fff,
-                    0 0 40px #0fa,
-                    0 0 80px #0fa,
-                    0 0 90px #0fa,
-                    0 0 100px #0fa,
-                    0 0 150px #0fa;
+        @keyframes glow-pulse {
+            from {
+                filter: brightness(1) drop-shadow(0 0 5px #00f2ff);
             }
-            0% {
-                text-shadow:
-                    0 0 2px #fff,
-                    0 0 4px #fff,
-                    0 0 6px #fff,
-                    0 0 10px #ff00de,
-                    0 0 45px #ff00de,
-                    0 0 55px #ff00de,
-                    0 0 70px #ff00de,
-                    0 0 80px #ff00de;
+            to {
+                filter: brightness(1.3) drop-shadow(0 0 20px #00f2ff);
             }
         }
 
-        /* خلفية ضوئية خفيفة خلف النص */
-        .bg-glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255, 0, 222, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(50px);
-        }
-
-        /* استجابة الشاشات الصغيرة */
         @media (max-width: 600px) {
-            .neon-text {
-                font-size: 2.5rem;
-            }
+            .neon-text { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-    <div class="neon-wrapper">
+    <canvas id="techCanvas"></canvas>
+
+    <div class="content">
         <h1 class="neon-text">شكراً محمد إيهاب</h1>
     </div>
 
+    <script>
+        const canvas = document.getElementById('techCanvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#00f2ff';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 2) - 1;
+                let directionY = (Math.random() * 2) - 1;
+                let color = '#00f2ff';
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                    + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                        ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connect();
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+    </script>
 </body>
 </html>
